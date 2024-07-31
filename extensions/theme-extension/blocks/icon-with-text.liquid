@@ -1,0 +1,62 @@
+{% comment %} 
+    App block example: 
+    - This block is used to display an icon with text
+    - This block is an example of app block extension and available for all users
+{% endcomment %}
+
+<style>
+    .icon-with-text {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .delivery-time .icon-wrapper img{
+        width: 100%;
+        height: 100%;
+    }
+</style>
+
+<div id="info-block-{{ block.id }}" class="icon-with-text">
+    {% if block.settings.icon != blank %}
+        <div class="icon-with-text__icon" style="width: {{ block.settings.icon_width | append: 'px' }};">
+          {% render 'img-icon', image: block.settings.icon  %}
+        </div>
+    {% endif %}
+    
+    {% if block.settings.text != blank %}
+      <div class="icon-with-text__text">
+        {{ block.settings.text }}
+      </div>
+    {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "Icon with text",
+  "target": "section",
+  "settings": [
+    {
+        "type": "image_picker",
+        "id": "icon",
+        "label": "Icon",
+        "info": "Optional"
+    },
+    {
+        "type": "range",
+        "id": "icon_width",
+        "label": "Icon width",
+        "unit": "px",
+        "min": 10,
+        "max": 200,
+        "step": 2,
+        "default": 40
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "default": "<p> Free shipping in United States over $100 USD </p>",
+      "label": "Description"
+    }
+  ]
+}
+{% endschema %}

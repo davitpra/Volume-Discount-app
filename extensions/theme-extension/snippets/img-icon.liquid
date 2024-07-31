@@ -1,0 +1,15 @@
+{% assign fetchpriority = 'auto' %}
+{% assign loading = loading |  default: 'lazy' %}
+
+{% if position < 6 or loading == 'eager' %}
+    {% assign fetchpriority = 'high' %}
+    {% assign loading = 'eager' %}
+{% endif %}
+
+{% assign alt = image.alt %}
+
+{% if image.alt == blank %}
+    {% assign alt = shop.name %}
+{% endif %}
+
+{{ image  | image_url: width: 200 | image_tag: alt: alt, fetchpriority: fetchpriority, loading: loading, class: class }}

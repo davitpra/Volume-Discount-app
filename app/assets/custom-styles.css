@@ -1,0 +1,15 @@
+/* Custom Styles */
+
+:root{
+    --p-color-text-success: #388e3c;
+}
+
+.custom-icon{
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+.custom-icon svg{
+    fill: none !important;
+
+}

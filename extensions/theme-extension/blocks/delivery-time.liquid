@@ -1,0 +1,89 @@
+{% comment %} 
+  App block example: 
+    - This block is used to display delivery time on the product page
+    - This block is an example of app block extension and only available for paid users
+    - This block is only available on the product page
+{% endcomment %}
+
+<style>
+    .delivery-time {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+</style>
+
+<div id="info-block-{{ block.id }}" class="delivery-time">
+  {% if block.settings.text != blank %}
+    {% comment %} {% assign deliveryDate = 'now' | date: '%s' | plus: 518400 | date: '%A %B %d, %Y' %} {% endcomment %}
+    {% assign deliveryDate = 'now' | date: '%s' %}
+    {% if block.settings.delivery_days_in_future != blank %}
+
+      {% comment %} 20:00 will be 10am PST {% endcomment %}
+      {% assign cutoff_time = '20:00' %}
+      {% assign delivery_seconds_in_future = block.settings.delivery_days_in_future | times: 86400 %}
+      {% assign deliveryDate = deliveryDate | plus: delivery_seconds_in_future %}
+      {% assign currentHourAndMinute = 'now' | date: '%H:%M' %}
+
+      {% assign deliveryDisplayDate = deliveryDate | date: '%A %B %d, %Y' %}
+
+      {% if currentHourAndMinute > cutoff_time %}
+        {% assign deliveryDate = deliveryDate | plus: 86400 %}
+      {% endif %}
+      
+      {% if block.settings.skip_weekends %}
+        {% if deliveryDisplayDate contains "Saturday" %}
+          {% assign deliveryDate = deliveryDate | plus: 172800 %}
+        {% endif %}
+
+        {% if deliveryDisplayDate contains "Sunday" %}
+          {% assign deliveryDate = deliveryDate | plus: 86400 %}
+        {% endif %}
+      {% endif %}
+
+      {% assign deliveryDate = deliveryDate | date: '%A %B %d, %Y' %}
+    {% endif %}
+
+    <div class="delivery-time__text">
+      {{ block.settings.text | replace: "$delivery_time", deliveryDate }}
+    </div>
+
+  {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "Delivery time",
+  "target": "section",
+  "available_if": "{{ app.metafields.shipready.paid }}",
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "settings": [
+    {
+      "type": "richtext",
+      "id": "text",
+      "default": "<p> Get it as soon as $delivery_time </p>",
+      "label": "Description",
+      "info": "Available variables: $delivery_time"
+    },
+    {
+      "type": "header",
+      "content": "Delivery settings"
+    },
+    {
+      "type": "number",
+      "id": "delivery_days_in_future",
+      "label": "Delivery days in future",
+      "default": 3,
+      "info": "Number of days to add to the current date to calculate the delivery date."
+    },
+    {
+      "type": "checkbox",
+      "id": "skip_weekends",
+      "label": "Skip weekends",
+      "default": true
+    }
+  ]
+}
+{% endschema %}
