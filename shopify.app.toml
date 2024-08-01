@@ -3,7 +3,7 @@
 client_id = "b541c11c80c012511c99b477421bcdc6"
 name = "shipready-demo"
 handle = "shipready-demo"
-application_url = "https://organized-enjoyed-offensive-una.trycloudflare.com"
+application_url = "https://original-tower-rome-going.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "write_metaobject_definitions,write_metaobjects,write_products,write_th
 
 [auth]
 redirect_urls = [
-  "https://organized-enjoyed-offensive-una.trycloudflare.com/auth/callback",
-  "https://organized-enjoyed-offensive-una.trycloudflare.com/auth/shopify/callback",
-  "https://organized-enjoyed-offensive-una.trycloudflare.com/api/auth/callback"
+  "https://original-tower-rome-going.trycloudflare.com/auth/callback",
+  "https://original-tower-rome-going.trycloudflare.com/auth/shopify/callback",
+  "https://original-tower-rome-going.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
