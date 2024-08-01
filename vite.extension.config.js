@@ -8,8 +8,8 @@ export default defineConfig({
     outDir: "extensions/theme-extension/",
     rollupOptions: {
       input: [
-        "extensions/theme-extension/js/app.js",
-        "extensions/theme-extension/css/app.css",
+        "extensions/theme-extension/src/app.js",
+        "extensions/theme-extension/src/app.css",
       ],
       output: {
         assetFileNames: "assets/app.[ext]",
