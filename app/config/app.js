@@ -14,7 +14,7 @@ const appConfig = {
   showSideNavigation: true,
   showTabNavigation: true,
   showTitleBar: false,
-  fullWidthPageLayout: false,
+  fullWidthPageLayout: true,
   requireAppEmbed: true,
   showLegacyPriceBanner: false,
   // Menu data - Add more menu items as needed

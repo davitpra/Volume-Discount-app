@@ -2,6 +2,8 @@
 const APP_NAME = "shipready"; // should be changed based on the name of your app
 const TRACKING_URL = `/apps/${APP_NAME}/api/events`;
 
+console.log("shipready is running!!")
+
 window.shipready = window.shipready || [];
 
 function handlePushEvent(eventName, eventDetails) {
