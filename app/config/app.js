@@ -5,6 +5,7 @@ import {
   ReceiptDollarFilledIcon,
   QuestionCircleIcon,
   SettingsIcon,
+  DiscountIcon
 } from "@shopify/polaris-icons";
 import { BillingInterval } from "@shopify/shopify-app-remix/server";
 
@@ -23,6 +24,12 @@ const appConfig = {
       label: "Dashboard",
       destination: "/app",
       icon: HomeIcon,
+      rel: "home",
+    },
+    {
+      label: "Discounts",
+      destination: "/app/discounts",
+      icon: DiscountIcon,
       rel: "home",
     },
     {
