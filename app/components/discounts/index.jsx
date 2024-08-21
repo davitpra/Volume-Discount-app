@@ -10,14 +10,14 @@ export default function Discounts() {
     <PageLayout 
       showBackButton title="Discounts page" 
       primaryAction={
-        <Button variant="primary" url="/app/discount/new">New Discount</Button>
+        <Button variant="primary" url="/app/new-discount">New Discount</Button>
       }
     >
       <PageTitleBar title="Discounts" />
         <Card>
           <EmptyState
             heading="Manage your discounts"
-            action={{content: 'Add discounts', url: '/app/discounts/new'}}
+            action={{content: 'Add discounts', url: '/app/new-discount'}}
             secondaryAction={{
               content: 'Learn more',
               url: 'https://help.shopify.com',
