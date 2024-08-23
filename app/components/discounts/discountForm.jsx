@@ -30,6 +30,7 @@ import PreviewMarkup from "./previewMarkup";
 import { Form, useSubmit, useLoaderData } from "@remix-run/react";
 
 export const DiscountForm = ({ isEditing = false }) => {
+  // useSubmit is a hook that provides a function to submit the form data to the specified URL.
   const submit = useSubmit();
   const loaderData = useLoaderData();
 
@@ -138,6 +139,7 @@ export const DiscountForm = ({ isEditing = false }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    // Data stucture to send to the server
     const data = {
       title,
       products,
@@ -162,6 +164,7 @@ export const DiscountForm = ({ isEditing = false }) => {
       <DiscountsProvider locale="en-US" ianaTimezone="America/Los_Angeles">
         <PageLayout showBackButton title={isEditing ? "Edit discount" : "New discount"}>
           {/* data-save-bar and data-discard-confirmation are custom attributes in Form tag from Shopify App Bridge React and are used to show a save bar and discard confirmation in the search bar of shopify. */}
+          {/* To post form data to the specified URL, use the action attribute. Otherwise, the information is directed to the page URL. */}
           <Form
             method="POST"
             data-save-bar
@@ -282,7 +285,7 @@ export const DiscountForm = ({ isEditing = false }) => {
 
                                 <Checkbox
                                   label="Pre-selected"
-                                  checked={item.selected}
+                                  defaultChecked={item.selected}
                                   onChange={() => handleSelectTier(i)}
                                 />
 
