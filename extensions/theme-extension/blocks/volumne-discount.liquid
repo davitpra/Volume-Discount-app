@@ -1,0 +1,333 @@
+<style>
+    .volume-discount-pdp{
+        margin-top: {{ block.settings.top_spacing | append: 'px' }};
+        margin-bottom: {{ block.settings.bottom_spacing | append: 'px' }};
+    }
+    .volume-discount__contents{
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        position: relative;
+    }
+    .volume-discount__contents .volume-discount__contents-title{
+        font-weight: 600;
+        font-size: 22px;
+    }
+
+    .volume-discount__contents .volume-discount__contents-label{
+        cursor: pointer;
+        border: 1px solid #999;
+    }
+    .volume-discount__contents .volume-discount__contents-main{
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 8px;
+    }
+    .volume-discount__contents-label .volume-discount__contents-label-wrapper{
+        display: flex;
+        justify-content: space-between;
+        position: relative;
+        padding: 8px 8px;
+        border-bottom: 1px solid #999;
+        align-items: center;
+    }
+    .volume-discount__contents-label-wrapper .volume-discount__contents-label-text{
+        font-weight: 600;
+    }
+    .volume-discount__contents-label-wrapper .volume-discount__contents-badge-text{
+        font-weight: 400;
+        font-size: 12px;
+        padding: 2px 15px;
+        border-radius: 32px;
+    }
+
+    .volume-discount__contents .volume-discount__contents-label .volume-discount__title{
+        font-weight: 600;
+        font-size: 18px;
+    }
+    .volume-discount__contents .volume-discount__contents-label .volume-discount__subtitle{
+        font-size: 14px;
+        font-weight: 400;
+    }
+
+    .volume-discount__contents-main .volume-discount__prices{
+        display: flex;
+        flex-direction: column;
+        line-height: normal;
+    }
+    
+    .volume-discount__contents-main .volume-discount__prices span.volume-discount__prices-orignal{
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .volume-discount__contents-main .volume-discount__prices span.volume-discount__prices-discounted{
+        font-size: 16px;
+        font-weight: 600;
+    }
+    
+    .volume-discount-pdp.shipready-theme-classic .volume-discount__contents{
+        border: 1px dashed #000;
+        padding: 8px;
+    }
+    .volume-discount-pdp.shipready-theme-classic .volume-discount__contents-title{
+        font-size: 20px;
+        margin-top: -30px;
+        background: #fff;
+        border: 1px dashed;
+        line-height: normal;
+        padding: 8px 10px;
+    }
+    .volume-discount-pdp.shipready-theme-modern .volume-discount__contents{
+       
+    }
+    .volume-discount-pdp.shipready-theme-modern .volume-discount__contents .volume-discount__contents-label{
+       border-radius: 4px;
+       overflow: hidden;
+       border: 2px solid #000;
+    }
+
+    .volume-discount__contents-label.selected-qty{
+        background-color: {{ block.settings.selected_bg }};
+    }
+</style>
+
+{% comment %} IMPORTING ALPAINE JS {% endcomment %}
+<script src="//unpkg.com/alpinejs" defer></script>
+
+{% comment %} In production, uncomment product and comment dev {% endcomment %}
+{% comment %} Production {% endcomment %}
+{% comment %} {% assign appID = 'app--147824312321--volumeDiscount' %}  {% endcomment %}
+{% comment %} Dev {% endcomment %}
+{% assign appID = 'app--152485756929--volume-discount' %} 
+
+{% assign object = shop.metaobjects[appID].values | first %}
+
+ {% comment %} if custom handle is set on the theme, get the object with custom handle {% endcomment %}
+{% if block.settings.custom_handle != blank %}
+    {% assign object = shop.metaobjects[appID][block.settings.custom_handle] %}
+{% endif %}
+
+{% assign eligibleProducts = object.products %}
+{% assign discountValues  = object.discountValues %}
+{% capture productsCapture %}
+    {{ eligibleProducts }}
+{% endcapture %}
+
+{% comment %} x-init: RUN ON THE FISRT LOAD {% endcomment %}
+{% if productsCapture contains product.id %}
+    {% render 'style-helper' %}
+    <div class="volume-discount-pdp {{ block.settings.theme }}"
+        x-title="Volume Discount"
+        x-init='$nextTick(() => {
+            console.log("Volume Discount PDP: ", {{ discountValues }});
+
+            // track views
+            shipready.push("volumeDiscountViewed",{
+                title: "{{ product.title }}",
+                price: {{ product.price | remove: ',' }},
+                url: "{{ product.url }}",
+            });
+
+            if (discountValues.length > 0) {
+                discountValues.forEach((block, index) => {
+                    if (block.selected) {
+                        quantity = parseInt(block.quantity);
+                    }
+                });
+            }
+            // get all forms with action that starts with /cart/add
+            let form = document.querySelectorAll(`form[action^="/cart/add"]`);
+            
+            if(form.length > 0){
+                // create a hidden input field for quantity and append it to the all forms
+                let quantityInput = document.createElement("input");
+                quantityInput.type = "hidden";
+                quantityInput.name = "quantity";
+                quantityInput.value = quantity;
+
+                form.forEach((f) => {
+                    f.appendChild(quantityInput);
+                });
+            }
+
+            // watch for changes in quantity and update the input value
+            $watch("quantity", (value) => {
+                if(form.length > 0){
+                    form.forEach((f) => {
+                        let qty = f.querySelector("input[name=quantity]");
+                        if(qty){
+                            qty.value = value;
+                        }
+                    });
+                }
+            });
+
+        })'
+        x-ref="volumeDiscountPDP"
+        x-data='{
+            loadingCheckout: false,
+            discountValues: {{ discountValues }},
+            quantity: 1,
+            cartCurrencySymbol: "{{ cart.currency.symbol }}",
+            price: {{ product.price | remove: ',' }},
+            discountedPrice(discount, discount_type){
+                // prices are in cent. Convert to dollar and prepend currency symbol. 
+                // if discount_type is percentage, calculate the discounted price
+                if (discount_type === "percentage") {
+                    return this.cartCurrencySymbol + ((this.price - (this.price * discount / 100)) / 100).toFixed(2);
+                }
+                // if discount_type is fixed, calculate the discounted price
+                return this.cartCurrencySymbol + ((this.price - (discount * 100 )) / 100).toFixed(2);
+            }
+        }'>
+
+        <div class="volume-discount__contents">
+            {% if block.settings.title  != blank %}
+                <div class="volume-discount__contents-title {{ block.settings.title_alignment }}">
+                    {{ block.settings.title }}
+                </div>
+            {% endif %}
+            <template x-for="(block, index) in discountValues">
+                <label x-bind:for="'{{ block.id }}_' + index" 
+                    x-bind:class="{
+                        'selected-qty': quantity == block.quantity,
+                    }"
+                    class="volume-discount__contents-label shipready-checkout-radio">
+                    <div class="volume-discount__contents-label-wrapper" 
+                        x-show="block.label" 
+                        x-bind:style="{
+                            backgroundColor: block.label_bg,
+                            color: block.label_color
+                        }">
+                        <span class="volume-discount__contents-label-text"
+                            x-bind:style="{
+                                color: block.label_color
+                            }" 
+                            x-text="block.label"></span>
+                        <span class="volume-discount__contents-badge-text"
+                            x-bind:style="{
+                                backgroundColor: block.badge_bg,
+                                color: block.badge_color
+                            }" 
+                            x-text="block.badge"></span>
+                    </div>
+                    <div class="volume-discount__contents-main">
+                        <input type="radio" name="volume-discount" x-model="quantity" x-bind:value="block.quantity" x-bind:id="'{{ block.id }}_' + index"> 
+                        <div class="shipready-w-full">
+                            <div class="volume-discount__title" x-text="block.title"></div>
+                            <div class="volume-discount__subtitle" x-text="block.subtitle"></div>
+                        </div>
+                        <div class="volume-discount__prices">
+                            <span class="volume-discount__prices-orignal" x-show="!block.discount">
+                                {{ product.price | money }}
+                            </span>
+                            <span 
+                                x-ci-text="discountedPrice(block.discount, block.discount_type)"
+                                class="volume-discount__prices-discounted" 
+                                x-ci-show="block.discount">
+                               
+                            </span>
+                            <s class="volume-discount__prices-orignal" x-show="block.discount">
+                                {{ product.price | money }}
+                            </s>
+                        </div>
+                    </div>
+                </label>
+            </template>
+        </div>
+    </div>
+{% endif %}
+
+
+
+{% schema %}
+  {
+    "name": "Volume discount",
+    "target": "section",
+    "settings": [
+        {
+            "type": "text",
+            "id": "title",
+            "label": "Title",
+            "default": "Buy more, save more"
+        },
+        {
+            "type": "text",
+            "id": "custom_handle",
+            "label": "Custom handle",
+            "info": "Optional: If you have more than one volume discount, you can use this field to differentiate them. Custom handle can be found in the app volume discount edit page."
+        },
+        {
+            "type": "header",
+            "content": "Settings"
+        },
+        {
+            "type": "select",
+            "id": "theme",
+            "label": "Theme",
+            "default": "shipready-theme-basic",
+            "options": [
+                {
+                    "value": "shipready-theme-basic",
+                    "label": "Basic"
+                },
+                {
+                    "value": "shipready-theme-classic",
+                    "label": "Classic"
+                },
+                {
+                    "value": "shipready-theme-modern",
+                    "label": "Modern"
+                }
+            ]
+        },
+        {
+            "type": "color",
+            "id": "selected_bg",
+            "label": "Selected background color"
+        },
+        {
+            "type": "select",
+            "id": "title_alignment",
+            "label": "Title alignment",
+            "default": "shipready-text-left",
+            "options": [
+                {
+                    "value": "shipready-text-left",
+                    "label": "Left"
+                },
+                {
+                    "value": "shipready-text-center",
+                    "label": "Center"
+                },
+                {
+                    "value": "shipready-text-right",
+                    "label": "Right"
+                }
+            ]
+        },
+        {
+            "type": "range",
+            "id": "top_spacing",
+            "label": "Top spacing",
+            "default": 14,
+            "unit": "px",
+            "min": 0,
+            "max": 100,
+            "step": 2
+        },
+        {
+            "type": "range",
+            "id": "bottom_spacing",
+            "label": "Bottom spacing",
+            "default": 14,
+            "unit": "px",
+            "min": 0,
+            "max": 100,
+            "step": 2
+        }
+    ]
+  }
+{% endschema %}
