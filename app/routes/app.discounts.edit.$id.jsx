@@ -11,6 +11,7 @@ export const loader = async ({ params, request }) => {
   // Get the discount id from the URL in the format of metaobject id
   const discountId = `gid://shopify/Metaobject/${params.id}`;
 
+  //  LAOD THE DISCOUNT DATA
   try {
     // Load the discount data
     const discountData = await metaobject.find(VolumeDiscountModel, discountId);
@@ -68,6 +69,7 @@ export const action = async ({ request }) => {
   return json({});
 };
 
+// RENDERING THE DISCOUNT FORM PAGE FOR EDITING
 export default function EditDiscountPage() {
   const loaderData = useLoaderData();
 
