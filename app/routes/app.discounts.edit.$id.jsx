@@ -83,43 +83,55 @@ export default function EditDiscountPage() {
 // Helper function
 async function updateDiscount(admin, formData, metaobject) {
 
-  const discount = new Discount(admin);
+  // const discount = new Discount(admin);
 
-  try {
-    const result = await discount.updateAutomatic({
-      id: formData.discountId,
-      title: formData.title,
-      functionId: process.env.SHOPIFY_VOLUME_DISCOUNT_ID,
-      startsAt: new Date(),
-      endsAt: new Date(new Date().setMonth(new Date().getMonth() + 1)),
-      combinesWith: formData.combinesWith,
-    });
+  // try {
+  //   const result = await discount.updateAutomatic({
+  //     id: formData.discountId,
+  //     title: formData.title,
+  //     functionId: process.env.SHOPIFY_VOLUME_DISCOUNT_ID,
+  //     startsAt: new Date(),
+  //     endsAt: new Date(new Date().setMonth(new Date().getMonth() + 1)),
+  //     combinesWith: formData.combinesWith,
+  //   });
 
-    console.log("Updated discount:", result);
+  //   console.log("Updated discount:", result);
 
-    const newData = {
-      title: formData.title,
-      discountId: formData.discountId,
-      products_reference: JSON.stringify(formData.products.flatMap(g => (g.variants.map(v => v.id)))),
-      products: JSON.stringify(formData.products),
-      discountValues: JSON.stringify(formData.discountValues), 
-      isActive: formData.isActive ? 'true' : 'false',
-      combinesWith: JSON.stringify(formData.combinesWith),
-      createdAt: new Date().toISOString(),
-    };
+  //   const newData = {
+  //     title: formData.title,
+  //     discountId: formData.discountId,
+  //     products_reference: JSON.stringify(formData.products.flatMap(g => (g.variants.map(v => v.id)))),
+  //     products: JSON.stringify(formData.products),
+  //     discountValues: JSON.stringify(formData.discountValues), 
+  //     isActive: formData.isActive ? 'true' : 'false',
+  //     combinesWith: JSON.stringify(formData.combinesWith),
+  //     createdAt: new Date().toISOString(),
+  //   };
 
-    const updatedDiscount = await metaobject.update(VolumeDiscountModel, formData.id, newData);
-    return updatedDiscount;
+  //   const updatedDiscount = await metaobject.update(VolumeDiscountModel, formData.id, newData);
+  //   return updatedDiscount;
 
-  } catch (error) {
-    console.error("Error saving discount:", error);
-    return {
-      status: {
-        success: false,
-        message: error.message, // This will now contain the correct error message
-      }
-    };
-  }
+  // } catch (error) {
+  //   console.error("Error saving discount:", error);
+  //   return {
+  //     status: {
+  //       success: false,
+  //       message: error.message, // This will now contain the correct error message
+  //     }
+  //   };
+  // }
+
+  const newData = {
+    title: formData.title,
+    discountId: formData.discountId,
+    products_reference: JSON.stringify(formData.products.flatMap(g => (g.variants.map(v => v.id)))),
+    products: JSON.stringify(formData.products),
+    discountValues: JSON.stringify(formData.discountValues), 
+    isActive: formData.isActive ? 'true' : 'false',
+    combinesWith: JSON.stringify(formData.combinesWith),
+    createdAt: new Date().toISOString(),
+  };
   
+  await metaobject.update(VolumeDiscountModel, formData.id, newData);
   
 }
