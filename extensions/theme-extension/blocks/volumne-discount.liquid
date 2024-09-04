@@ -123,7 +123,7 @@
         x-init='$nextTick(() => {
             console.log("Volume Discount PDP: ", {{ discountValues }});
 
-            // track views
+            // track views -- this function is defined in app.js
             shipready.push("volumeDiscountViewed",{
                 title: "{{ product.title }}",
                 price: {{ product.price | remove: ',' }},

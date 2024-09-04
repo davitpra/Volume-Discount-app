@@ -8,11 +8,13 @@ import { UserViews } from "../chart/userViews";
 import { TotalOrders } from "../chart/totalOrders";
 import { CustomerOverTime } from "../chart/customerOverTime";
 import { FulfilledOrdersOverTime } from "../chart/fulfilledOrdersOverTime";
+import { TotalVolumeDiscountViews } from "../chart/totalVolumeDiscountViews";
 
 export const Analytics = () => (
   <>
     <Layout.Section>
       <Grid columns={{ xs: 1, sm: 2, md: 4, lg:4, xl:4 }} gap="400">
+          <TotalVolumeDiscountViews />
           <TotalRevenue />
           <TotalOrders />
           <CustomerOverTime />
