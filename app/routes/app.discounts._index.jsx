@@ -2,7 +2,7 @@ import { authenticateExtra } from "../config/shopify.js";
 import { json } from "@remix-run/node";
 import Discounts from "../components/discounts/index.jsx";
 import { FeatureModel } from "../models/feature.model.js";
-import { VolumeDiscountModel } from "../models/volumeDiscount.model.js";
+import { VolumeDiscountWithIDModel } from "../models/volumeDiscountWithID.model.js";
 
 const METAFIELD_NAMESPACE = "shipready";
 const METAFIELD_KEY = "appSettings";
@@ -29,7 +29,7 @@ export const loader = async ({ request }) => {
   const url= new URL(request.url);
   const cursor = url.searchParams.get("cursor");
   const limit =  4;
-  const volumeDiscounts = await metaobject.list(VolumeDiscountModel, limit, cursor);
+  const volumeDiscounts = await metaobject.list(VolumeDiscountWithIDModel, limit, cursor);
 
   return json({volumeDiscounts});
   
@@ -43,7 +43,7 @@ export async function action({ request }) {
   // Parse the form data
   let formData = await request.json();
 
-  console.log("--------------> formData: ", formData);
+  // console.log("--------------> formData: ", formData);
 
   // // Check if the form data is for  UPDATING a discount
   // if (formData.saveSettings) {

@@ -5,7 +5,6 @@ import { SparkLineWidget } from "./main/sparkLineWidget";
 export const TotalVolumeDiscountViews  = () => {
   const { revenues, volumeDiscountViews  } = useLoaderData();
 
-  console.log('volumeDiscountViews', volumeDiscountViews);
   return (
     // simply replace the data provided below 😉
     <SparkLineWidget
