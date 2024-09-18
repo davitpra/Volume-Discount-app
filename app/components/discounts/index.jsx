@@ -20,7 +20,9 @@ export default function Discounts() {
     <PageLayout 
       showBackButton title="Discounts page" 
       primaryAction={
-        <Button variant="primary" url="/app/discounts/new">New Discount</Button>
+        <Button variant="primary" url="/app/discounts/new">
+          New Discount
+        </Button>
       }
     >
       <PageTitleBar title="Discounts" />

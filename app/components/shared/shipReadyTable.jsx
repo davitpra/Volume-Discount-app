@@ -32,6 +32,7 @@ const ShipReadyTable = ({
   const [selectedObject, setSelectedObject] = useState({});
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
 
+  // Update the page withe the next discounts when the cursor changes
   useEffect(() => {
     const cursor = searchParams.get("cursor");
     if (cursor && !cursorHistory.includes(cursor)) {
@@ -56,9 +57,11 @@ const ShipReadyTable = ({
   const { selectedResources, allResourcesSelected, handleSelectionChange } =
     useIndexResourceState(data.nodes);
 
+  // If no headings are provided, use the keys of the first item in the data array
   const tableHeadings =
     headings || Object.keys(data.nodes[0]).map((key) => ({ title: key }));
 
+  // Render the cell content based on the heading
   const renderCell = (item, heading) => {
     const key = heading.title
       .replace(/\s+/g, "")
@@ -86,6 +89,7 @@ const ShipReadyTable = ({
     return value ?? "N/A";
   };
 
+  // Handle pagination
   const handlePagination = useCallback(
     (direction) => {
       if (direction === "next" && data?.pageInfo?.hasNextPage) {
@@ -106,11 +110,13 @@ const ShipReadyTable = ({
     [data.pageInfo, navigate, cursorHistory, currentCursorIndex],
   );
 
-  const handleDelete = (id) => {
+  // Handle delete
+  const handleDelete = (id, discountId) => {
     // console.log("Deleting item with id:", id);
     submit(
       {
         objectId: id,
+        discountId: discountId,
         deleteObject: true,
       },
       { method: "post", encType: "application/json" },
@@ -118,6 +124,7 @@ const ShipReadyTable = ({
     setOpenDeleteModal(false);
   };
 
+  // Create the table rows
   const rowMarkup = data.nodes.map((item, index) => (
     <IndexTable.Row
       id={item.id || index.toString()}
@@ -140,7 +147,7 @@ const ShipReadyTable = ({
                 variant="plain"
                 tone="critical"
                 onClick={() => {
-                  setSelectedObject({ id: item.id || index.toString() });
+                  setSelectedObject({ id: item.id || index.toString() ,  discountId: item.discountId});
                   setOpenDeleteModal(true);
                 }}
                 icon={DeleteIcon}
@@ -191,7 +198,7 @@ const ShipReadyTable = ({
         <TitleBar>
           <button
             variant="primary"
-            onClick={() => handleDelete(selectedObject.id)}
+            onClick={() => handleDelete(selectedObject.id, selectedObject.discountId)}
             tone="critical"
           >
             Confirm delete

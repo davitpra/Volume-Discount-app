@@ -10,12 +10,12 @@ import {
 import { BillingInterval } from "@shopify/shopify-app-remix/server";
 
 const appConfig = {
-  // Constants
+  // configuration for the app
   IDENTIFIER_PREFIX: "shipready_",
   showSideNavigation: true,
   showTabNavigation: true,
   showTitleBar: false,
-  fullWidthPageLayout: false,
+  fullWidthPageLayout: false, 
   requireAppEmbed: true,
   showLegacyPriceBanner: false,
   // Menu data - Add more menu items as needed
