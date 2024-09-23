@@ -93,7 +93,7 @@ async function saveDiscount(admin, formData, metaobject) {
     // Prepare the data to be saved in the format that the MetaObject expects, not null values are allowed
     const newDataWithID = {
       title: formData.title,
-      discountId: result.discountId, 
+      discountId: result.discountId, // id of the discount in the shopify store
       products_reference: JSON.stringify(formData.products.flatMap(g => (g.variants.map(v => v.id)))),
       products: JSON.stringify(formData.products),
       discountValues: JSON.stringify(formData.discountValues), 
@@ -103,10 +103,8 @@ async function saveDiscount(admin, formData, metaobject) {
     };
       
     // Check if the MetaObject definition already exists
-    let definition;
     try {
-      //check if the definition already exists
-      definition = await metaobject.getDefinition({ type: VolumeDiscountWithIDModel.type });
+       await metaobject.getDefinition({ type: VolumeDiscountWithIDModel.type });
     } catch (error) {
       // If the definition doesn't exist, create it
       if (error.message.includes("No definition found")) {
@@ -122,7 +120,7 @@ async function saveDiscount(admin, formData, metaobject) {
     return createdDiscount;
 
   } catch (e) {
-    console.error("Error saving features:", e);
+    console.error("Error saving discount:", e);
     return json({
       status: {
         success: false,

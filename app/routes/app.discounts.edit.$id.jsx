@@ -2,7 +2,7 @@ import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { DiscountForm } from "../components/discounts/discountForm";
 import { authenticateExtra } from "../config/shopify";
-import { VolumeDiscountModel } from "../models/volumeDiscount.model";
+import { VolumeDiscountWithIDModel } from "../models/volumeDiscountWithID.model";
 import { Discount } from "../entities/discount";
 
 export const loader = async ({ params, request }) => {
@@ -14,8 +14,8 @@ export const loader = async ({ params, request }) => {
   //  LAOD THE DISCOUNT DATA
   try {
     // Load the discount data
-    const discountData = await metaobject.find(VolumeDiscountModel, discountId);
-    
+    const discountData = await metaobject.find(VolumeDiscountWithIDModel, discountId);   
+
     // Parse JSON strings back into objects
     const parsedData = {
       ...discountData,
@@ -85,10 +85,18 @@ async function updateDiscount(admin, formData, metaobject) {
 
   const discount = new Discount(admin);
 
-  try {
+  // new object to store the only discount values necesary to create the discount
+  const formattedDiscountValues = formData.discountValues.map(discount => ({
+    discount_message: discount.discount_message,
+    discount_type: discount.discount_type,
+    quantity: discount.quantity,
+    discount: discount.discount
+  }));
 
+  try {
     // with the discount object, we can now update the discount using shopify functions
-    const result = await discount.createAutomatic({
+    const result = await discount.updateAutomatic({
+      id: formData.discountId,
       title: formData.title,
       functionId: process.env.SHOPIFY_VOLUME_DISCOUNT_ID,
       startsAt: new Date(),
@@ -101,17 +109,16 @@ async function updateDiscount(admin, formData, metaobject) {
           type: "json",
           value: JSON.stringify({
             title: formData.title,
-            discountValue: "",
+            discountValue: formattedDiscountValues,
+            variants: formData.products.flatMap(g => (g.variants.map(v => v.id))),
           })
         }
       ]
     });
 
-    console.log("Updated discount:", result);
-
     const newData = {
       title: formData.title,
-      discountId: result.discountId,
+      discountId: formData.discountId,
       products_reference: JSON.stringify(formData.products.flatMap(g => (g.variants.map(v => v.id)))),
       products: JSON.stringify(formData.products),
       discountValues: JSON.stringify(formData.discountValues), 
@@ -120,7 +127,7 @@ async function updateDiscount(admin, formData, metaobject) {
       createdAt: new Date().toISOString(),
     };
 
-    const updatedDiscount = await metaobject.update(VolumeDiscountModel, formData.id, newData);
+    const updatedDiscount = await metaobject.update(VolumeDiscountWithIDModel, formData.id, newData);
     return updatedDiscount;
 
   } catch (error) {

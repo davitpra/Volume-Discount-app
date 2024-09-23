@@ -9,6 +9,7 @@ import {
   InlineStack,
   Select,
   Checkbox,
+  Badge,
   AppProvider as PolarisAppProvider
 } from "@shopify/polaris";
 import { useCallback, useState, useEffect } from "react";
@@ -30,15 +31,19 @@ import PreviewMarkup from "./previewMarkup";
 import { Form, useSubmit, useLoaderData } from "@remix-run/react";
 
 export const DiscountForm = ({ isEditing = false }) => {
-  // useSubmit is a hook that provides a function to submit the form data to the specified URL.
   const submit = useSubmit();
   const loaderData = useLoaderData();
 
   const [title, setTitle] = useState('');
   const [products, setProducts] = useState([]);
-  const [combinesWith, setCombinesWith] = useState([]);
+  // Default values for combinesWith
+  const [combinesWith, setCombinesWith] = useState({
+    orderDiscounts: false,
+    productDiscounts: false,
+    shippingDiscounts: false
+  });
+  const [status, setStatus] = useState('draft');
 
-  // Default discount values
   const [discountValues, setDiscountValues] = useState([
       {
           title: "Buy one",
@@ -94,6 +99,7 @@ export const DiscountForm = ({ isEditing = false }) => {
       setProducts(loaderData.products || []);
       setCombinesWith(loaderData.combinesWith || []);
       setDiscountValues(loaderData.discountValues || []);
+      setStatus(loaderData.isActive ? 'active' : 'draft');
     }
   }, [isEditing, loaderData]);
 
@@ -144,16 +150,15 @@ export const DiscountForm = ({ isEditing = false }) => {
       title,
       products,
       discountValues,
-      isActive: true,
+      isActive: status === "active",
       combinesWith,
       createdAt: isEditing ? loaderData.createdAt : new Date().toISOString(),
       [isEditing ? 'updateDiscount' : 'saveDiscount']: true
     };
 
-    console.log('data before sending:', data);
-
     if (isEditing) {
       data.id = loaderData.id; // Include the discount ID when updating
+      data.discountId = loaderData.discountId; // Include the Shopify discount ID when updating
     }
 
     await submit(data, { method: 'POST', encType: "application/json" });
@@ -162,9 +167,7 @@ export const DiscountForm = ({ isEditing = false }) => {
   return (
     <PolarisAppProvider i18n={enPolarisTranslations}>
       <DiscountsProvider locale="en-US" ianaTimezone="America/Los_Angeles">
-        <PageLayout showBackButton title={isEditing ? "Edit discount" : "New discount"}>
-          {/* data-save-bar and data-discard-confirmation are custom attributes in Form tag from Shopify App Bridge React and are used to show a save bar and discard confirmation in the search bar of shopify. */}
-          {/* To post form data to the specified URL, use the action attribute. Otherwise, the information is directed to the page URL. */}
+        <PageLayout showBackButton title={isEditing ? "Edit discount" : "New discount"} titleMetadata={status === "draft" ? <Badge tone="info"> Draft </Badge> : <Badge tone="success"> Active </Badge>}>
           <Form
             method="POST"
             data-save-bar
@@ -172,13 +175,10 @@ export const DiscountForm = ({ isEditing = false }) => {
             onSubmit={handleSubmit}
             onReset={() => {}}
           >
-            {/* Layout.Section are dividers to separate the form into sections. */}
             <Layout>
               <Layout.Section>
-                {/* // BlockStack is used to stack the cards vertically with a gap between them. */}
                 <BlockStack gap="500">
                   <Card sectioned>
-                    {/* // FormLayout is used to create a form with labels and inputs. */}
                     <FormLayout>
                       <Text variant="headingSm">Basic settings</Text>
                       <TextField 
@@ -193,16 +193,13 @@ export const DiscountForm = ({ isEditing = false }) => {
 
                   <Card>
                     <BlockStack gap="300">
-                      {/* // InlineStack is used to align the text horizontally in the card. */}
                       <InlineStack align="space-between">
                         <Text variant="headingSm">Volume Discount Settings</Text>
                       </InlineStack>
                       <BlockStack gap="400">
-                        {/* // Loop through the discount values and display the form fields for each tier */}
                         {discountValues?.map((item, i) => (
                           <Card roundedAbove="xs" key={i}>
                             <BlockStack gap="200">
-                              {/* // InlineStack is used to align the text horizontally in the card. */}
                               <InlineStack align="space-between">
                                 <Text variant="bodyMd" fontWeight="bold">Tier {i + 1}</Text>
                                 <Button
@@ -285,7 +282,7 @@ export const DiscountForm = ({ isEditing = false }) => {
 
                                 <Checkbox
                                   label="Pre-selected"
-                                  defaultChecked={item.selected}
+                                  checked={item.selected}
                                   onChange={() => handleSelectTier(i)}
                                 />
 
@@ -357,6 +354,17 @@ export const DiscountForm = ({ isEditing = false }) => {
               {/* Sidebar */}
               <Layout.Section variant="oneThird">
                 <BlockStack gap="500">
+                  <Card>
+                      <Select
+                        label="Status"
+                        options={[
+                          { label: "Draft", value: "draft" },
+                          { label: "Active", value: "active" }
+                        ]}
+                        value={status}
+                        onChange={setStatus}
+                      />
+                  </Card>
                   <SummaryCard
                     header={{
                       discountMethod: DiscountMethod.Automatic,
